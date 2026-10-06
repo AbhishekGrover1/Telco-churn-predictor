@@ -1,18 +1,21 @@
-<div align="center">
 
-<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0a0a0c,100:1d2433&height=180&section=header&text=Telco%20Churn%20Predictor&fontSize=40&fontColor=ededf0&fontAlignY=36&desc=Customer%20churn%20scoring%20with%20scikit-learn%20and%20Flask&descSize=15&descColor=8e8e99&descAlignY=58" alt="Telco Churn Predictor" width="100%">
+# ***Telo Churn Predictor***
+ <a href="https://ford-price-intelligence-1.onrender.com">
+  <img src="https://img.shields.io/badge/Live%20Demo-8B5CF6?style=flat-square&logo=render&logoColor=white" alt="Live Demo">
+   <img src="https://img.shields.io/badge/Python-3.12%2B-FF0000?style=flat-square&logo=python&logoColor=white" alt="Python">
+    <img src="https://img.shields.io/badge/gunicorn-10B981?style=flat-square&logo=fastapi&logoColor=white" alt="Gunicorn">
+    <img src="https://img.shields.io/badge/scikit--learn-1.6-F59E0B?style=flat-square&logo=scikitlearn&logoColor=white" alt="scikit-learn">
+         <img src="https://img.shields.io/badge/Pandas%2B-FF0000?style=flat-square&logo=pandas&logoColor=white" alt="Pandas">
+<img src="https://img.shields.io/badge/JavaScript-F472B6?style=flat-square&logo=javascript&logoColor=white" alt="JavaScript">
+    <img src="https://img.shields.io/badge/License-MIT-E879F9?style=flat-square" alt="MIT License">
+     <img src="https://img.shields.io/badge/Numpy%2B-FF0000?style=flat-square&logo=Numpy&logoColor=white" alt="Numpy">
+     
+##### *Production-oriented vehicle price prediction powered by machine learning, FastAPI, and a custom web interface*
 
-![Python](https://img.shields.io/badge/Python-3.12-bfdbfe?style=flat-square&labelColor=0a0a0c)
-![Flask](https://img.shields.io/badge/Flask-3.1-e5e7eb?style=flat-square&labelColor=0a0a0c)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-1.6.1-fed7aa?style=flat-square&labelColor=0a0a0c)
-![pandas](https://img.shields.io/badge/pandas-2.2-ddd6fe?style=flat-square&labelColor=0a0a0c)
-![Render](https://img.shields.io/badge/Deploy-Render-fbcfe8?style=flat-square&labelColor=0a0a0c)
-![License](https://img.shields.io/badge/License-MIT-fde68a?style=flat-square&labelColor=0a0a0c)
 
 </div>
 
-Scores how likely a telecom customer is to churn. A scikit-learn Random Forest pipeline sits behind a small Flask API, with a dark single-page UI on top.
-
+---
 ## Contents
 
 - [Stack](#stack)
