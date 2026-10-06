@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Telco Churn Predictor</title>
+  <meta name="description" content="Telecom customer churn scoring with a scikit-learn Random Forest pipeline, served by Flask.">
+  <meta name="author" content="Abhishek Grover">
+  <meta name="theme-color" content="#0a0a0c">
+  <meta name="color-scheme" content="dark">
+  <!-- Leave empty while Flask serves this page. Set it to the API origin if the UI is hosted somewhere else. -->
+  <meta name="api-base" content="">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Crect width='24' height='24' rx='6' fill='%230a0a0c'/%3E%3Ccircle cx='12' cy='12' r='7' stroke='%237fb2ff' stroke-opacity='.3' stroke-width='2'/%3E%3Cpath d='M12 5a7 7 0 0 1 6.4 4.1' stroke='%237fb2ff' stroke-width='2' stroke-linecap='round'/%3E%3Ccircle cx='12' cy='12' r='1.8' fill='%237fb2ff'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300..600&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="ambient" aria-hidden="true"></div>
+
+  <div class="page">
+    <header class="top">
+      <h1 class="brand">
+        <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity=".28" stroke-width="2"/>
+          <path d="M12 3a9 9 0 0 1 8.2 5.3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="2.2" fill="currentColor"/>
+        </svg>
+        Telco Churn Predictor
+      </h1>
+      <p class="status" id="status" data-state="checking" role="status"><i></i><span id="statusText">Connecting</span></p>
+    </header>
+
+    <main class="layout">
+      <form id="churnForm" class="panel glow form" autocomplete="off">
+        <div class="form-head">
+          <h2>Customer</h2>
+          <div class="presets">
+            <div class="tilt" data-tilt="10"><button type="button" class="key key-sm" data-preset="loyal">Loyal customer</button></div>
+            <div class="tilt" data-tilt="10"><button type="button" class="key key-sm" data-preset="risky">At-risk customer</button></div>
+            <div class="tilt" data-tilt="10"><button type="button" class="key key-sm" id="resetBtn">Reset</button></div>
+          </div>
+        </div>
+
+        <section class="group" aria-labelledby="g-account">
+          <h3 id="g-account">Account</h3>
+          <div class="grid">
+            <div class="field">
+              <label for="tenure">Tenure <span class="unit">months</span></label>
+              <input id="tenure" name="tenure" type="number" inputmode="numeric" min="0" max="120" step="1" value="12" required>
+            </div>
+            <div class="field">
+              <label for="MonthlyCharges">Monthly charges <span class="unit">$</span></label>
+              <input id="MonthlyCharges" name="MonthlyCharges" type="number" inputmode="decimal" min="0" max="500" step="0.01" value="70.50" required>
+            </div>
+            <div class="field">
+              <div class="label-row">
+                <label for="TotalCharges">Total charges <span class="unit">$</span></label>
+                <button type="button" class="auto" id="autoTotal" aria-pressed="true" title="Calculate from tenure and monthly charges">Auto</button>
+              </div>
+              <input id="TotalCharges" name="TotalCharges" type="number" inputmode="decimal" min="0" max="100000" step="0.01" value="846.00" required>
+            </div>
+            <div class="field">
+              <label for="PaymentMethod">Payment method</label>
+              <select id="PaymentMethod" name="PaymentMethod">
+                <option>Electronic check</option>
+                <option>Mailed check</option>
+                <option>Bank transfer (automatic)</option>
+                <option>Credit card (automatic)</option>
+              </select>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-Contract">
+              <span class="label" id="l-Contract">Contract</span>
+              <div class="seg" data-n="3">
+                <input type="radio" id="Contract-0" name="Contract" value="Month-to-month" checked><label for="Contract-0">Monthly</label>
+                <input type="radio" id="Contract-1" name="Contract" value="One year"><label for="Contract-1">1 year</label>
+                <input type="radio" id="Contract-2" name="Contract" value="Two year"><label for="Contract-2">2 years</label>
+              </div>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-PaperlessBilling">
+              <span class="label" id="l-PaperlessBilling">Paperless billing</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="PaperlessBilling-0" name="PaperlessBilling" value="Yes" checked><label for="PaperlessBilling-0">Yes</label>
+                <input type="radio" id="PaperlessBilling-1" name="PaperlessBilling" value="No"><label for="PaperlessBilling-1">No</label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="group" aria-labelledby="g-services">
+          <h3 id="g-services">Services</h3>
+          <div class="grid">
+            <div class="field" role="group" aria-labelledby="l-PhoneService">
+              <span class="label" id="l-PhoneService">Phone service</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="PhoneService-0" name="PhoneService" value="Yes" checked><label for="PhoneService-0">Yes</label>
+                <input type="radio" id="PhoneService-1" name="PhoneService" value="No"><label for="PhoneService-1">No</label>
+              </div>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-MultipleLines" data-needs="phone" data-na="No phone service">
+              <span class="label" id="l-MultipleLines">Multiple lines</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="MultipleLines-0" name="MultipleLines" value="Yes"><label for="MultipleLines-0">Yes</label>
+                <input type="radio" id="MultipleLines-1" name="MultipleLines" value="No" checked><label for="MultipleLines-1">No</label>
+              </div>
+              <span class="na">No phone service</span>
+            </div>
+            <div class="field wide" role="group" aria-labelledby="l-InternetService">
+              <span class="label" id="l-InternetService">Internet service</span>
+              <div class="seg" data-n="3">
+                <input type="radio" id="InternetService-0" name="InternetService" value="DSL"><label for="InternetService-0">DSL</label>
+                <input type="radio" id="InternetService-1" name="InternetService" value="Fiber optic" checked><label for="InternetService-1">Fiber</label>
+                <input type="radio" id="InternetService-2" name="InternetService" value="No"><label for="InternetService-2">None</label>
+              </div>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-OnlineSecurity" data-needs="internet" data-na="No internet service">
+              <span class="label" id="l-OnlineSecurity">Online security</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="OnlineSecurity-0" name="OnlineSecurity" value="Yes"><label for="OnlineSecurity-0">Yes</label>
+                <input type="radio" id="OnlineSecurity-1" name="OnlineSecurity" value="No" checked><label for="OnlineSecurity-1">No</label>
+              </div>
+              <span class="na">No internet service</span>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-OnlineBackup" data-needs="internet" data-na="No internet service">
+              <span class="label" id="l-OnlineBackup">Online backup</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="OnlineBackup-0" name="OnlineBackup" value="Yes"><label for="OnlineBackup-0">Yes</label>
+                <input type="radio" id="OnlineBackup-1" name="OnlineBackup" value="No" checked><label for="OnlineBackup-1">No</label>
+              </div>
+              <span class="na">No internet service</span>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-DeviceProtection" data-needs="internet" data-na="No internet service">
+              <span class="label" id="l-DeviceProtection">Device protection</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="DeviceProtection-0" name="DeviceProtection" value="Yes"><label for="DeviceProtection-0">Yes</label>
+                <input type="radio" id="DeviceProtection-1" name="DeviceProtection" value="No" checked><label for="DeviceProtection-1">No</label>
+              </div>
+              <span class="na">No internet service</span>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-TechSupport" data-needs="internet" data-na="No internet service">
+              <span class="label" id="l-TechSupport">Tech support</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="TechSupport-0" name="TechSupport" value="Yes"><label for="TechSupport-0">Yes</label>
+                <input type="radio" id="TechSupport-1" name="TechSupport" value="No" checked><label for="TechSupport-1">No</label>
+              </div>
+              <span class="na">No internet service</span>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-StreamingTV" data-needs="internet" data-na="No internet service">
+              <span class="label" id="l-StreamingTV">Streaming TV</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="StreamingTV-0" name="StreamingTV" value="Yes"><label for="StreamingTV-0">Yes</label>
+                <input type="radio" id="StreamingTV-1" name="StreamingTV" value="No" checked><label for="StreamingTV-1">No</label>
+              </div>
+              <span class="na">No internet service</span>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-StreamingMovies" data-needs="internet" data-na="No internet service">
+              <span class="label" id="l-StreamingMovies">Streaming movies</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="StreamingMovies-0" name="StreamingMovies" value="Yes"><label for="StreamingMovies-0">Yes</label>
+                <input type="radio" id="StreamingMovies-1" name="StreamingMovies" value="No" checked><label for="StreamingMovies-1">No</label>
+              </div>
+              <span class="na">No internet service</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="group" aria-labelledby="g-profile">
+          <h3 id="g-profile">Profile</h3>
+          <div class="grid three">
+            <div class="field" role="group" aria-labelledby="l-gender">
+              <span class="label" id="l-gender">Gender</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="gender-0" name="gender" value="Female" checked><label for="gender-0">Female</label>
+                <input type="radio" id="gender-1" name="gender" value="Male"><label for="gender-1">Male</label>
+              </div>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-Partner">
+              <span class="label" id="l-Partner">Partner</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="Partner-0" name="Partner" value="Yes" checked><label for="Partner-0">Yes</label>
+                <input type="radio" id="Partner-1" name="Partner" value="No"><label for="Partner-1">No</label>
+              </div>
+            </div>
+            <div class="field" role="group" aria-labelledby="l-Dependents">
+              <span class="label" id="l-Dependents">Dependents</span>
+              <div class="seg" data-n="2">
+                <input type="radio" id="Dependents-0" name="Dependents" value="Yes"><label for="Dependents-0">Yes</label>
+                <input type="radio" id="Dependents-1" name="Dependents" value="No" checked><label for="Dependents-1">No</label>
+              </div>
+            </div>
+          </div>
+        </section>
+      </form>
+
+      <aside class="panel glow result" id="result" data-state="idle" aria-label="Prediction">
+        <div class="halo" aria-hidden="true"></div>
+
+        <div class="dial">
+          <svg viewBox="0 0 240 240" aria-hidden="true">
+            <circle class="ticks" cx="120" cy="120" r="112"/>
+            <circle class="track" cx="120" cy="120" r="96"/>
+            <circle class="arc" id="arc" cx="120" cy="120" r="96"/>
+          </svg>
+          <div class="readout">
+            <div class="pct"><span id="pctNum">&mdash;</span><span class="pct-sign">%</span></div>
+            <div class="cap">churn probability</div>
+          </div>
+        </div>
+
+        <div class="verdict" aria-live="polite">
+          <span class="tag" id="riskTag"><i></i><span id="riskText">Not scored</span></span>
+          <span class="verdict-line" id="verdictLine">&nbsp;</span>
+        </div>
+
+        <div class="tilt block" data-tilt="7">
+          <button type="submit" form="churnForm" class="key" id="predictBtn">
+            <span class="spinner" aria-hidden="true"></span>
+            <span id="predictLabel">Predict churn risk</span>
+          </button>
+        </div>
+        <p class="note" id="note" role="status"></p>
+
+        <section class="levers" id="levers" hidden>
+          <h3>What would lower it</h3>
+          <ul id="leverList"></ul>
+        </section>
+
+        <noscript><p class="note is-error">Turn on JavaScript to run predictions.</p></noscript>
+      </aside>
+    </main>
+
+    <section class="stack" aria-label="Tech stack">
+      <div class="stack-row">
+        <h2>Built with</h2>
+        <ul class="chips">
+          <li class="chip on">Python</li>
+          <li class="chip on">Flask</li>
+          <li class="chip on">scikit-learn</li>
+          <li class="chip on">Random Forest</li>
+          <li class="chip on">pandas</li>
+          <li class="chip on">joblib</li>
+          <li class="chip on">Gunicorn</li>
+          <li class="chip on">JavaScript</li>
+          <li class="chip on">Render</li>
+        </ul>
+      </div>
+      <div class="stack-row">
+        <h2>Can use</h2>
+        <ul class="chips">
+          <li class="chip off">XGBoost</li>
+          <li class="chip off">SHAP</li>
+          <li class="chip off">Optuna</li>
+          <li class="chip off">MLflow</li>
+          <li class="chip off">FastAPI</li>
+          <li class="chip off">Docker</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer class="foot">
+      <p>&copy; <span id="year">2026</span> Abhishek Grover</p>
+      <nav class="social" aria-label="Author links">
+        <div class="tilt" data-tilt="14"><a class="key key-sm" href="https://github.com/AbhishekGrover1" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</a></div>
+        <div class="tilt" data-tilt="14"><a class="key key-sm" href="https://www.linkedin.com/in/abhishek-grover-07" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a></div>
+      </nav>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

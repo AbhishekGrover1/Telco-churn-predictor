@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: telco-churn-predictor
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app --workers 1 --threads 4 --timeout 120
+    healthCheckPath: /health
+    autoDeployTrigger: commit
+    envVars:
+      # The model was pickled with scikit-learn 1.6.1, which has no wheels for
+      # Render's newer default Python, so pin the interpreter.
+      - key: PYTHON_VERSION
+        value: 3.12.11
