@@ -1,15 +1,7 @@
 
-# ***Telo Churn Predictor***
- <a href="https://ford-price-intelligence-1.onrender.com">
-  <img src="https://img.shields.io/badge/Live%20Demo-8B5CF6?style=flat-square&logo=render&logoColor=white" alt="Live Demo">
-   <img src="https://img.shields.io/badge/Python-3.12%2B-FF0000?style=flat-square&logo=python&logoColor=white" alt="Python">
-    <img src="https://img.shields.io/badge/gunicorn-10B981?style=flat-square&logo=fastapi&logoColor=white" alt="Gunicorn">
-    <img src="https://img.shields.io/badge/scikit--learn-1.6-F59E0B?style=flat-square&logo=scikitlearn&logoColor=white" alt="scikit-learn">
-         <img src="https://img.shields.io/badge/Pandas%2B-FF0000?style=flat-square&logo=pandas&logoColor=white" alt="Pandas">
-<img src="https://img.shields.io/badge/JavaScript-F472B6?style=flat-square&logo=javascript&logoColor=white" alt="JavaScript">
-    <img src="https://img.shields.io/badge/License-MIT-E879F9?style=flat-square" alt="MIT License">
-     <img src="https://img.shields.io/badge/Numpy%2B-FF0000?style=flat-square&logo=Numpy&logoColor=white" alt="Numpy">
-     
+# *Telo Churn Predictor*
+
+<a href="https://telco-churn-predictor-2exf.onrender.com/" target="_blank"><img src="https://img.shields.io/badge/Live%20Demo-2A8B6C?style=flat-square&logo=render&logoColor=white" alt="Live Demo"></a><img src="https://img.shields.io/badge/Python-3.12%2B-25537B?style=flat-square&logo=python&logoColor=white" alt="Python"><img src="https://img.shields.io/badge/Gunicorn-2D6B2D?style=flat-square&logo=fastapi&logoColor=white" alt="Gunicorn"><img src="https://img.shields.io/badge/scikit--learn-1.6-B86C11?style=flat-square&logo=scikitlearn&logoColor=white" alt="scikit-learn"><img src="https://img.shields.io/badge/Pandas%2B-0B0230?style=flat-square&logo=pandas&logoColor=white" alt="Pandas"><img src="https://img.shields.io/badge/Numpy%2B-011E29?style=flat-square&logo=numpy&logoColor=white" alt="Numpy"><img src="https://img.shields.io/badge/JavaScript-B8A514?style=flat-square&logo=javascript&logoColor=white" alt="JavaScript"><img src="https://img.shields.io/badge/License-MIT-1E3A8A?style=flat-square" alt="MIT License">
 ##### *Production-oriented vehicle price prediction powered by machine learning, FastAPI, and a custom web interface*
 
 
